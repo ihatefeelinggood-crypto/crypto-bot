@@ -1,4 +1,5 @@
 import logging
+import os
 from telegram import Update, BotCommand
 from telegram.ext import Application, CommandHandler, ContextTypes
 
@@ -9,7 +10,10 @@ logging.basicConfig(
     level=logging.INFO
 )
 
-TELEGRAM_TOKEN = "YOUR_TOKEN_HERE"
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+
+if not TELEGRAM_TOKEN:
+    raise ValueError("TELEGRAM_TOKEN environment variable is missing")
 
 analyzer = CryptoAnalyzer()
 
