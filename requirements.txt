@@ -1,3 +1,1 @@
-python-telegram-bot>=21.0
-# or even better, the latest stable:
 python-telegram-bot>=22.8
