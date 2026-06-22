@@ -1,1 +1,6 @@
-aiohttp>=3.10.0
+python-telegram-bot==22.2
+aiohttp
+python-dotenv
+google-generativeai
+requests
+pytz
