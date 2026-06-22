@@ -1,118 +1,92 @@
-import os
 import logging
-import asyncio
 import aiohttp
 from telegram import Update, BotCommand
 from telegram.ext import Application, CommandHandler, ContextTypes
-from dotenv import load_dotenv
-from analyzer import CryptoAnalyzer
 
-load_dotenv()
+# Enable logging
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
-logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    level=logging.INFO
-)
-logger = logging.getLogger(__name__)
+TELEGRAM_TOKEN = "YOUR_TOKEN_HERE"   # ← CHANGE THIS
 
-TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
-analyzer = CryptoAnalyzer()
-
+# ====================== COMMAND HANDLERS ======================
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    msg = (
-        "👋 *Welcome to CryptoAI Bot!*\n\n"
+    welcome_text = (
+        "👋 Welcome to CryptoAI Bot!\n\n"
         "Powered by Gemini AI + Live Market Data\n\n"
-        "*Commands:*\n"
-        "📊 /analyze `BTC` — Full AI market analysis\n"
-        "🎯 /signal `ETH` — Entry/exit signal\n"
-        "😱 /sentiment — Market fear & greed\n"
-        "📈 /ta `SOL` — Technical indicators\n"
-        "💰 /price `BNB` — Quick price check\n"
-        "🔝 /top — Top 10 coins by market cap\n\n"
-        "_Not financial advice. Always DYOR!_"
+        "Commands:\n"
+        "📊 /analyze BTC — Full AI market analysis\n"
+        "📈 /signal ETH — Entry/exit signal\n"
+        "😨 /sentiment — Market fear & greed\n"
+        "📉 /ta SOL — Technical indicators\n"
+        "💰 /price BNB — Quick price check\n"
+        "🏆 /top — Top 10 coins by market cap\n\n"
+        "Not financial advice. Always DYOR!"
     )
-    await update.message.reply_text(msg, parse_mode="Markdown")
+    await update.message.reply_text(welcome_text)
 
-
-async def price_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if not context.args:
-        await update.message.reply_text("Usage: /price BTC")
-        return
-    coin = context.args[0].upper()
-    await update.message.reply_text(f"⏳ Fetching price for {coin}...")
-    result = await analyzer.get_price(coin)
-    await update.message.reply_text(result, parse_mode="Markdown")
-
-
-async def analyze_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if not context.args:
-        await update.message.reply_text("Usage: /analyze BTC")
-        return
-    coin = context.args[0].upper()
-    await update.message.reply_text(f"🔍 Analyzing {coin} with AI... Please wait 10-20 seconds.")
-    result = await analyzer.full_analysis(coin)
-    await update.message.reply_text(result, parse_mode="Markdown")
-
-
-async def signal_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def signal(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not context.args:
         await update.message.reply_text("Usage: /signal ETH")
         return
     coin = context.args[0].upper()
-    await update.message.reply_text(f"🎯 Generating signal for {coin}...")
-    result = await analyzer.get_signal(coin)
-    await update.message.reply_text(result, parse_mode="Markdown")
+    await update.message.reply_text(f"📈 Generating signal for {coin}...\n(Replace this with real logic)")
 
+async def analyze(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not context.args:
+        await update.message.reply_text("Usage: /analyze BTC")
+        return
+    coin = context.args[0].upper()
+    await update.message.reply_text(f"🔍 AI Analysis for {coin}...\n(Replace this with Gemini API call)")
 
-async def sentiment_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("😱 Fetching market sentiment...")
-    result = await analyzer.get_sentiment()
-    await update.message.reply_text(result, parse_mode="Markdown")
+async def sentiment(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("😨 Current Market Sentiment: Fear & Greed Index\n(Replace with real data)")
 
-
-async def ta_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def ta(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not context.args:
         await update.message.reply_text("Usage: /ta SOL")
         return
     coin = context.args[0].upper()
-    await update.message.reply_text(f"📈 Running technical analysis for {coin}...")
-    result = await analyzer.technical_analysis(coin)
-    await update.message.reply_text(result, parse_mode="Markdown")
+    await update.message.reply_text(f"📉 Technical Analysis for {coin}...\n(Replace with real TA)")
 
+async def price(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not context.args:
+        await update.message.reply_text("Usage: /price BNB")
+        return
+    coin = context.args[0].upper()
+    await update.message.reply_text(f"💰 Current price of {coin}...\n(Replace with real price API)")
 
-async def top_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("🔝 Fetching top 10 coins...")
-    result = await analyzer.get_top_coins()
-    await update.message.reply_text(result, parse_mode="Markdown")
+async def top(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("🏆 Top 10 Coins by Market Cap...\n(Replace with real data)")
 
+# ====================== MAIN ======================
 
-async def set_commands(app):
+async def set_commands(application: Application):
     commands = [
-        BotCommand("start", "Welcome message"),
-        BotCommand("price", "Quick price check e.g. /price BTC"),
-        BotCommand("analyze", "Full AI analysis e.g. /analyze ETH"),
-        BotCommand("signal", "Entry/exit signal e.g. /signal SOL"),
-        BotCommand("sentiment", "Market fear & greed index"),
-        BotCommand("ta", "Technical indicators e.g. /ta BNB"),
-        BotCommand("top", "Top 10 coins by market cap"),
+        BotCommand("start", "Start the bot"),
+        BotCommand("analyze", "Full AI market analysis"),
+        BotCommand("signal", "Entry/exit signal"),
+        BotCommand("sentiment", "Market fear & greed"),
+        BotCommand("ta", "Technical indicators"),
+        BotCommand("price", "Quick price check"),
+        BotCommand("top", "Top 10 coins"),
     ]
-    await app.bot.set_my_commands(commands)
-
+    await application.bot.set_my_commands(commands)
 
 def main():
     app = Application.builder().token(TELEGRAM_TOKEN).post_init(set_commands).build()
+
+    # Register handlers
     app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("price", price_cmd))
-    app.add_handler(CommandHandler("analyze", analyze_cmd))
-    app.add_handler(CommandHandler("signal", signal_cmd))
-    app.add_handler(CommandHandler("sentiment", sentiment_cmd))
-    app.add_handler(CommandHandler("ta", ta_cmd))
-    app.add_handler(CommandHandler("top", top_cmd))
+    app.add_handler(CommandHandler("signal", signal))
+    app.add_handler(CommandHandler("analyze", analyze))
+    app.add_handler(CommandHandler("sentiment", sentiment))
+    app.add_handler(CommandHandler("ta", ta))
+    app.add_handler(CommandHandler("price", price))
+    app.add_handler(CommandHandler("top", top))
 
-    logger.info("Bot started!")
-    app.run_polling(allowed_updates=Update.ALL_TYPES)
-
+    print("🤖 Bot is running...")
+    app.run_polling()
 
 if __name__ == "__main__":
     main()
